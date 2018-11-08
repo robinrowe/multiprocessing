@@ -1,0 +1,23 @@
+# code_test/multiprocessing/CMakeList.txt
+# Copyright 2018/11/2 Robin.Rowe@CinePaint.org
+# License open source MIT
+
+project(ProducerConsumer)
+
+cmake_minimum_required(VERSION 3.8)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+set(HEADERS
+	MemoryPool.h
+	Product.h
+	RingQueue.h
+	Semaphore.h
+	SharedMemory.h
+)
+
+add_executable(producer ${HEADERS} producer.cpp)
+add_executable(consumer ${HEADERS} consumer.cpp)
+
+add_executable(test_queue ${HEADERS} test_queue.cpp)
