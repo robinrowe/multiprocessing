@@ -35,7 +35,7 @@ class SharedMemoryWin
 	bool Open(size_t size) override
 	{	HANDLE sharedMemory = INVALID_HANDLE_VALUE;
 //hFile = CreateFile(argv[1],GENERIC_WRITE|GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_ALWAYS,NULL,NULL);
-		id = CreateFileMappingA(sharedMemory,0,PAGE_READWRITE,0,(DWORD)size,name.c_str());
+		id = CreateFileMappingA(sharedMemory,0,PAGE_READWRITE,0,0,/*(DWORD)size*/name.c_str());
 		if (id == NULL || id == INVALID_HANDLE_VALUE)
 		{	PrintError("CreateFileMappingA");
 			return false;
@@ -59,3 +59,15 @@ public:
 }
 
 #endif
+
+/* Since WinXP SP2, CreateFileMapping is now significantly reduced in functionality and that only services are allowed to create global shared memory.
+
+There are three workarounds:
+
+Use the Microsoft Management Console (MMC) and the Local Security Policy Snap-In to give SeCreateGlobalPrivilege to the limited account.
+Write a wrapper program that executes with elevated rights and and uses RtlAcquire/AdjustPrivilege to get the privilege before running your target program (Such as gcc).
+Use the HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Kernel\ObUnsecureGlobalNames string array to add the name of the section to the list. Hopefully your program isn’t randomizing the name. Adding this name will disable the kernel protection check.
+
+http://www.alex-ionescu.com/?p=16
+
+*/
