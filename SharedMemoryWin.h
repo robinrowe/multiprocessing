@@ -19,7 +19,7 @@ class SharedMemoryWin
 	{	id = 0;
 		MemoryPool::Reset();
 	}
-	void PrintError(const char* msg)
+	void PrintError(const char* msg) override
 	{	printf("Error %s (%d)\n",msg,GetLastError());
 	}
 	bool Close() override
@@ -32,10 +32,10 @@ class SharedMemoryWin
 		Reset();
 		return true;	
 	}
-	bool Open(const char* name,size_t size) override
+	bool Open(size_t size) override
 	{	HANDLE sharedMemory = INVALID_HANDLE_VALUE;
 //hFile = CreateFile(argv[1],GENERIC_WRITE|GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_ALWAYS,NULL,NULL);
-		id = CreateFileMappingA(sharedMemory,0,PAGE_READWRITE,0,(DWORD)size,name);
+		id = CreateFileMappingA(sharedMemory,0,PAGE_READWRITE,0,(DWORD)size,name.c_str());
 		if (id == NULL || id == INVALID_HANDLE_VALUE)
 		{	PrintError("CreateFileMappingA");
 			return false;
@@ -48,9 +48,6 @@ class SharedMemoryWin
 		return true;
 	}
 public:
-	~SharedMemoryWin()
-	{	Close();
-	}
 	SharedMemoryWin(const char* name,bool isAllocator)
 	{	Init(name,isAllocator);
 	}

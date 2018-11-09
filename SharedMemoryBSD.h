@@ -19,51 +19,58 @@ namespace IPC {
 
 class SharedMemoryBSD
 :	public MemoryPool
-{protected:
+{	inline
+	size_t shm_size(int fd)
+	{	if(fd<=0)
+		{	return 0;
+		}
+		struct stat status;
+		if(stat(name.c_str(),&status) == -1)
+		{	PrintError("stat");
+			return 0;
+		}
+		return status.st_size;
+	}
+protected:
 	int fd;
-	size_t size;
-	void* p;
 	void Reset()
 	{	fd = 0;
-		p = 0;
-		size = 0;
+		MemoryPool::Reset();
 	}
-	bool Create(const char* name,size_t size)
+	bool Create(size_t size)
 	{	int oflags = O_RDWR | O_CREAT;
-		fd = shm_open(name,oflags,0644);
+		fd = shm_open(name.c_str(),oflags,0644);
 		if(fd<=0)
-		{	return false;
+		{	PrintError("shm_open");
+			return false;
 		}
 		shm_ftruncate(fd,size);
 		p = mmap(NULL,size,PROT_READ|PROT_WRITE,MAP_SHARED,fd,0);
-		this->size = size;
 		return true;
 	}
 	bool Close() override
-	{	if(p>0)
-		{	close(p);
+	{	int err = 0;
+		if(p>0)
+		{	err = munmap(p,shm_size(fd));
 			p = 0;
 		}
-		return shm_close(fd);
+		return (err == 0) && shm_close(fd);
 	}
-	bool Open(const char* name,size_t size) override
+	bool Open(size_t size) override
 	{	if(isAllocator)
-		{	return Create(name,size);
+		{	return Create(size);
 		}
 		int oflags=O_RDWR;
-		fd = shm_open(name,oflags,0644);
+		fd = shm_open(name.c_str(),oflags,0644);
 		if(fd<=0)
-		{	return false;
+		{	PrintError("shm_open");
+			return false;
 		}
 		size = shm_size(fd)/sizeof(*this);
 		p = mmap(NULL,size,PROT_READ|PROT_WRITE,MAP_SHARED,fd,0);
-		this->size = size;
 		return true;
 	}
 public:
-	~SharedMemoryBSD()
-	{	Close();
-	}
 	SharedMemoryBSD(const char* name,bool isAllocator)
 	{	Init(name,isAllocator);
 	}

@@ -6,6 +6,7 @@
 #define MemoryPool_h
 
 #include <string>
+#include <stdio.h>
 
 namespace IPC {
 
@@ -24,16 +25,24 @@ class MemoryPool
 		this->name = name;
 		this->isAllocator = isAllocator;
 	}
-	virtual bool Close() = 0;
-	virtual bool Open(const char* name,size_t size) = 0;
+	virtual void PrintError(const char* msg)
+	{	perror(msg);
+	}
+	virtual bool Close()
+	{	return false;
+	}
+	virtual bool Open(size_t size)
+	{	return false;
+	}
 public:
 	MemoryPool()
 	:	p(0)
 	{}
 	virtual ~MemoryPool()
-	{}
+	{	Close();
+	}
 	void* Allocate(size_t size)
-	{	if(!Open(name.c_str(),size))
+	{	if(!Open(size))
 		{	return 0;
 		}		
 		return p;

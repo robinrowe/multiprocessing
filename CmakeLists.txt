@@ -9,15 +9,19 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+if(WIN32)
+set(MEMORY SharedMemoryWin.h)
+else(UNIX)
+set(MEMORY SharedMemoryBSD.h SharedMemorySysV.h)
+endif(WIN32)
+
 set(HEADERS
 	MemoryPool.h
 	Product.h
 	RingQueue.h
 	Semaphore.h
 	SharedMemory.h
-	SharedMemoryBSD.h
-	SharedMemorySysV.h
-	SharedMemoryWin.h
+	${MEMORY}
 )
 
 add_executable(producer ${HEADERS} producer.cpp)
