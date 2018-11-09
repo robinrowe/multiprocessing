@@ -30,10 +30,11 @@ public:
 	{	return head == tail;
 	}
 	size_t Count() const
-	{	if(head<=tail)
-		{	return tail-head;
+	{	const size_t spread = tail-head;
+		if(spread>0)
+		{	return spread;
 		}
-		return capacity-head+tail;
+		return capacity+spread;
 	}
 	bool IsFull() const
 	{	return Count() == capacity;
