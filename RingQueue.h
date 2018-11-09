@@ -31,7 +31,7 @@ public:
 	}
 	size_t Count() const
 	{	const int spread = tail-head;
-		if(spread>0)
+		if(spread>=0)
 		{	return spread;
 		}
 		return capacity+spread;
