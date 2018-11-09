@@ -30,7 +30,7 @@ public:
 	{	return head == tail;
 	}
 	size_t Count() const
-	{	const size_t spread = tail-head;
+	{	const int spread = tail-head;
 		if(spread>0)
 		{	return spread;
 		}
