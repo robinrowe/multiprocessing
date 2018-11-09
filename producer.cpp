@@ -7,7 +7,9 @@
 #include <thread>
 #include "RingQueue.h"
 #include "SharedMemory.h"
+#ifdef SEMAPHORE
 #include "Semaphore.h"
+#endif
 #include "Product.h"
 using namespace std;
 
@@ -36,11 +38,13 @@ int main()
 	{	cout << "Shared memory failed!" << endl;
 		return 1;
 	}
+#ifdef SEMAPHORE
 	IPC::Semaphore sem;
 	if(!sem.Open(semKey))
 	{	cout << "Semaphore failed!" << endl;
 		return 2;
 	}
+#endif
 	Producer producer;
 	for(unsigned i = 0;i<100;i++)
 	{	Product product = producer.Generate();
@@ -49,12 +53,16 @@ int main()
 			continue;
 		}
 		cout << product << endl;
-		{	IPC::Lock lock(sem);
+		{	
+#ifdef SEMAPHORE
+			IPC::Lock lock(sem);
+#endif
 			if(!queue->Push(product))
 			{	cout << "DROPPED <" << product.id << ">" << endl;
 		}	} 
 		std::this_thread::sleep_for(2s);
 	}
+	queue->Set(false);
 	cout << "Done!" << endl;
 	return 0;
 }

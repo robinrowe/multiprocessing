@@ -15,6 +15,9 @@ set(HEADERS
 	RingQueue.h
 	Semaphore.h
 	SharedMemory.h
+	SharedMemoryBSD.h
+	SharedMemorySysV.h
+	SharedMemoryWin.h
 )
 
 add_executable(producer ${HEADERS} producer.cpp)

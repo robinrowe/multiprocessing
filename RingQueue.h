@@ -8,9 +8,9 @@
 #include <atomic>
 #include "MemoryPool.h"
 
-template <typename T,unsigned size>
+template <typename T,unsigned capacity>
 class RingQueue
-{	T q[size];
+{	T q[capacity];
 	std::atomic<unsigned> head;
 	std::atomic<unsigned> tail;
 	std::atomic<bool> isGood;
@@ -33,10 +33,10 @@ public:
 	{	if(head<=tail)
 		{	return tail-head;
 		}
-		return size-head+tail;
+		return capacity-head+tail;
 	}
 	bool IsFull() const
-	{	return Count() == size;
+	{	return Count() == capacity;
 	}
 	T& Front()
 	{	return q[head];
@@ -49,7 +49,7 @@ public:
 		{	return false;
 		}
 		q[tail] = v;
-		if(tail < size-1)
+		if(tail < capacity-1)
 		{	tail++;
 		}
 		else
@@ -61,7 +61,7 @@ public:
 	{	if(IsEmpty())
 		{	return false;
 		}
-		if(head < size-1)
+		if(head < capacity-1)
 		{	head++;
 		}
 		else
@@ -69,12 +69,19 @@ public:
 		}
 		return true;
 	}
-	void* operator new(size_t size,void* pool)
+	void* operator new(size_t size,void* pool) throw()
 	{	if(!pool)
 		{	return 0;
 		}
-		MemoryPool* p = static_cast<MemoryPool*>(pool); 
+		IPC::MemoryPool* p = static_cast<IPC::MemoryPool*>(pool); 
 		return p->Allocate(size);
+	}
+	void operator delete(void* pool,void* ptr) throw()
+	{	if(!pool)
+		{	return;
+		}
+		IPC::MemoryPool* p = static_cast<IPC::MemoryPool*>(pool); 
+		p->Deallocate(ptr);
 	}
 };
 
