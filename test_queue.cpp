@@ -3,37 +3,45 @@
 #include <iostream>
 #include <queue>
 #include "RingQueue.h"
+using namespace std;
+
+//#define STD_QUEUE
+#define RING_QUEUE
 
 int main()
-{	std::queue<int> myqueue;
-	int myint;
-	std::cout << "Enter some integers (enter 0 to end):\n";
+{	int myint;
+#ifdef STD_QUEUE	
+	queue<int> myqueue;
+	cout << "Enter some integers (enter 0 to end):\n";
 	do
-	{	std::cin >> myint;
+	{	cin >> myint;
 		myqueue.push(myint);
 	}
 	while(myint);
-	std::cout << "queue contains: ";
+	cout << "queue contains: ";
 	while(!myqueue.empty())
-	{	std::cout << ' ' << myqueue.front();
+	{	cout << ' ' << myqueue.front();
 		myqueue.pop();
 	}
-	std::cout << '\n';
-
-	RingQueue<int,5> fqueue;
-	std::cout << "Enter some integers (enter 0 to end):\n";
+	cout << endl;
+#endif
+#ifdef RING_QUEUE
+	RingQueue<int,5,-1> queue;
+	queue.Clear();
+	cout << "Enter some integers (enter 0 to end):\n";
 	do
-	{	std::cin >> myint;
-		fqueue.Push(myint);
+	{	cin >> myint;
+		queue.Push(myint);
 	}
 	while(myint);
-	std::cout << "queue contains: ";
-	while(!myqueue.empty())
-	{	std::cout << ' ' << myqueue.front();
-		fqueue.Pop();
+	cout << "queue contains (" << queue.Count() 
+		<< ",max " << queue.Capacity()<<"): ";
+	while(!queue.IsEmpty())
+	{	cout << ' ' << queue.Front();
+		queue.Pop();
 	}
-	std::cout << '\n';
-
+	cout << endl;
+#endif
 	return 0;
 }
 

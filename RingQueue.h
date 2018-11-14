@@ -8,9 +8,9 @@
 #include <atomic>
 #include "MemoryPool.h"
 
-template <typename T,unsigned capacity>
+template <typename T,unsigned capacity,int init = 0>
 class RingQueue
-{	T q[capacity];
+{	T q[capacity+1];
 	std::atomic<unsigned> head;
 	std::atomic<unsigned> tail;
 	std::atomic<bool> isGood;
@@ -20,6 +20,10 @@ public:
 	,	tail(0)
 	,	isGood(false)
 	{}
+	void Clear()
+	{	for(unsigned i = 0;i<=capacity;i++)
+		{	q[i] = init;
+	}	}
 	void Set(bool isGood = true)
 	{	this->isGood = isGood;
 	}
@@ -36,6 +40,9 @@ public:
 		}
 		return capacity+spread;
 	}
+	size_t Capacity() const
+	{	return capacity;
+	}
 	bool IsFull() const
 	{	return Count() == capacity;
 	}
@@ -50,7 +57,7 @@ public:
 		{	return false;
 		}
 		q[tail] = v;
-		if(tail < capacity-1)
+		if(tail < capacity)
 		{	tail++;
 		}
 		else
@@ -62,7 +69,7 @@ public:
 	{	if(IsEmpty())
 		{	return false;
 		}
-		if(head < capacity-1)
+		if(head < capacity)
 		{	head++;
 		}
 		else
