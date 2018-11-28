@@ -14,6 +14,7 @@ set(MEMORY SharedMemoryWin.h)
 else(UNIX)
 set(MEMORY SharedMemoryBSD.h SharedMemorySysV.h)
 endif(WIN32)
+include_directories(.)
 
 set(HEADERS
 	MemoryPool.h
@@ -24,7 +25,10 @@ set(HEADERS
 	${MEMORY}
 )
 
-add_executable(producer ${HEADERS} producer.cpp)
-add_executable(consumer ${HEADERS} consumer.cpp)
-
-add_executable(test_queue ${HEADERS} test_queue.cpp)
+add_executable(producer ${HEADERS} test/producer.cpp)
+add_executable(consumer ${HEADERS} test/consumer.cpp)
+add_executable(test_std_queue ${HEADERS} test/test_std_queue.cpp)
+add_executable(test_ring_queue ${HEADERS} test/test_ring_queue.cpp)
+add_executable(pipe_io ${HEADERS} test/pipe_io.cpp)
+add_executable(stdio_client ${HEADERS} test/stdio_client.cpp)
+add_executable(stdio_server ${HEADERS} test/stdio_server.cpp)
