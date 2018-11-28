@@ -10,103 +10,17 @@
 #include <algorithm>
 #include "MemoryPool.h"
 
-template <typename T>
-class RingQueueIterator
+class RingQueueBase
 {protected:
-	T* head;
-	T* tail;
-	T* buffer;
-	T* fence;
-	bool OpEqEq(const RingQueueIterator& rhs) const
-	{	if(rhs.head == head)
-		{	return true;
-		}	
-		return false;
-	}
-	void OpPlusPlus()
-	{	head++;
-		if(head>=fence)
-		{	head = buffer;
-	}	}
-public:
-	typedef std::bidirectional_iterator_tag iterator_category;
-	typedef T value_type;
-	typedef ptrdiff_t difference_type;
-	typedef T* pointer;
-	typedef T& reference;
-	RingQueueIterator(T* head,T* tail,T* buffer,unsigned capacity)
-	:	head(head)
-	,	tail(tail)
-	,	buffer(buffer)
-	,	fence(buffer+capacity)
-	{}
-	bool operator==(const RingQueueIterator& rhs) const
-	{	return OpEqEq(rhs);
-	}
-	bool operator!=(const RingQueueIterator& rhs) const
-	{	return !OpEqEq(rhs);
-	}
-	RingQueueIterator<T>& operator++()
-	{	OpPlusPlus();
-		return *this;
-	}
-	operator T*()
-	{	return head;
-	}
-};
-
-template <typename T>
-class ConstRingQueueIterator
-:	public RingQueueIterator<T>
-{public:
-	ConstRingQueueIterator(T* head,T* tail,T* buffer,unsigned capacity)
-	:	RingQueueIterator(head,tail,buffer,capacity)
-	{}
-	bool operator==(const ConstRingQueueIterator& rhs) const
-	{	return OpEqEq(rhs);
-	}
-	bool operator!=(const ConstRingQueueIterator& rhs) const
-	{	return !OpEqEq(rhs);
-	}
-	ConstRingQueueIterator<T>& operator++()
-	{	OpPlusPlus();
-		return *this;
-	}
-	operator T*() const
-	{	return head;
-	}
-};
-
-template <typename T,unsigned capacity>
-class RingQueue
-{	T q[capacity+1];
-	int head;
-	int tail;
-	bool isGood;
-public:
-	RingQueue()
-	:	head(0)
+	const unsigned capacity;
+	unsigned head;
+	unsigned tail;
+	RingQueueBase(int capacity)
+	:	capacity(capacity)
+	,	head(0)
 	,	tail(0)
-	,	isGood(false)
 	{}
-	RingQueueIterator<T> begin()
-	{	return RingQueueIterator<T>(q+head,q+tail,q,capacity);
-	}
-	RingQueueIterator<T> end()
-	{	return RingQueueIterator<T>(q+tail,q+tail,q,capacity);
-	}
-	ConstRingQueueIterator<T> begin() const
-	{	T* p = (T*) q;
-		return ConstRingQueueIterator<T>(p+head,p+tail,p,capacity);
-	}
-	ConstRingQueueIterator<T> end() const
-	{	T* p = (T*) q;
-		return ConstRingQueueIterator<T>(p+tail,p+tail,p,capacity);
-	}
-	void Clear(int init = 0)
-	{	for(unsigned i = 0;i<capacity;i++)
-		{	q[i] = init;
-	}	}
+public:
 	bool IsEmpty() const
 	{	return head == tail;
 	}
@@ -123,6 +37,128 @@ public:
 	bool IsFull() const
 	{	return Count() == capacity;
 	}
+	unsigned Head() const
+	{	return head;
+	}
+	unsigned Tail() const
+	{	return tail;
+	}
+};
+
+template <typename T>
+class RingQueueIterator
+{protected:
+	const RingQueueBase& q;
+	const T* buffer;
+	unsigned head;
+	bool OpEqEq(const RingQueueIterator& rhs) const
+	{	if(rhs.head == head)
+		{	return true;
+		}	
+		return false;
+	}
+	void OpPlusPlus()
+	{	head++;
+		if(head>=q.Capacity())
+		{	head = 0;
+	}	}
+public:
+	RingQueueIterator<T>(const RingQueueBase& q,T* buffer)
+	:	q(q)
+	,	buffer(buffer)
+	{	head = q.Head();
+	}
+	bool operator==(const RingQueueIterator<T>& rhs) const
+	{	return OpEqEq(rhs);
+	}
+	bool operator!=(const RingQueueIterator<T>& rhs) const
+	{	return !OpEqEq(rhs);
+	}
+	RingQueueIterator<T>& operator++()
+	{	OpPlusPlus();
+		return *this;
+	}
+	operator T*()
+	{	return q[head];
+	}
+	typedef std::bidirectional_iterator_tag iterator_category;
+	typedef T value_type;
+	typedef ptrdiff_t difference_type;
+	typedef T* pointer;
+	typedef T& reference;
+};
+
+template <typename T>
+class ConstRingQueueIterator
+:	public RingQueueIterator<T>
+{public:
+	ConstRingQueueIterator(const RingQueueBase& q,const T* buffer)
+	:	RingQueueIterator(q,(T*)buffer)
+	{}
+	bool operator==(const ConstRingQueueIterator& rhs) const
+	{	return OpEqEq(rhs);
+	}
+	bool operator!=(const ConstRingQueueIterator& rhs) const
+	{	return !OpEqEq(rhs);
+	}
+	ConstRingQueueIterator<T>& operator++()
+	{	OpPlusPlus();
+		return *this;
+	}
+	operator T*() const
+	{	return (T*)buffer+head;
+	}
+};
+
+template <typename T,unsigned capacity2>
+class RingQueue
+:	public RingQueueBase
+{	T q[capacity2+1];
+	bool isGood;
+public:
+	RingQueue()
+	:	RingQueueBase(capacity2+1)
+	,	isGood(false)
+	{}
+	RingQueueIterator<T> begin()
+	{	return RingQueueIterator<T>(*this,q);
+	}
+	RingQueueIterator<T> end()
+	{	return RingQueueIterator<T>(*this,q);
+	}
+	ConstRingQueueIterator<T> begin() const
+	{	return ConstRingQueueIterator<T>(*this,q);
+	}
+	ConstRingQueueIterator<T> end() const
+	{	return ConstRingQueueIterator<T>(*this,q);
+	}
+	void* operator new(size_t size,void* pool) throw()
+	{	if(!pool)
+		{	return 0;
+		}
+		IPC::MemoryPool* p = static_cast<IPC::MemoryPool*>(pool); 
+		return p->Allocate(size);
+	}
+	void operator delete(void* pool,void* ptr) throw()
+	{	if(!pool)
+		{	return;
+		}
+		IPC::MemoryPool* p = static_cast<IPC::MemoryPool*>(pool); 
+		p->Deallocate(ptr);
+	}
+	void Set(bool isGood = true)
+	{	this->isGood = isGood;
+	}
+	bool IsGood() const
+	{	return isGood;
+	}
+	const T* Fence() const
+	{	return q+capacity;
+	}
+	void Clear(int init = 0)
+	{	for(unsigned i = 0;i<capacity;i++)
+		{	q[i] = init;
+	}	}
 	T& Front()
 	{	return q[head];
 	}
@@ -153,26 +189,6 @@ public:
 		{	head = 0;
 		}
 		return true;
-	}
-	void* operator new(size_t size,void* pool) throw()
-	{	if(!pool)
-		{	return 0;
-		}
-		IPC::MemoryPool* p = static_cast<IPC::MemoryPool*>(pool); 
-		return p->Allocate(size);
-	}
-	void operator delete(void* pool,void* ptr) throw()
-	{	if(!pool)
-		{	return;
-		}
-		IPC::MemoryPool* p = static_cast<IPC::MemoryPool*>(pool); 
-		p->Deallocate(ptr);
-	}
-	void Set(bool isGood = true)
-	{	this->isGood = isGood;
-	}
-	bool IsGood() const
-	{	return isGood;
 	}
 };
 
