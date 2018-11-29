@@ -12,9 +12,9 @@
 
 class RingQueueBase
 {protected:
-	const unsigned capacity;
-	unsigned head;
-	unsigned tail;
+	const int capacity;
+	int head;
+	int tail;
 	RingQueueBase(int capacity)
 	:	capacity(capacity)
 	,	head(0)
@@ -37,12 +37,6 @@ public:
 	bool IsFull() const
 	{	return Count() == capacity;
 	}
-	unsigned Head() const
-	{	return head;
-	}
-	unsigned Tail() const
-	{	return tail;
-	}
 };
 
 template <typename T>
@@ -50,24 +44,24 @@ class RingQueueIterator
 {protected:
 	const RingQueueBase& q;
 	const T* buffer;
-	unsigned head;
+	int i;
 	bool OpEqEq(const RingQueueIterator& rhs) const
-	{	if(rhs.head == head)
+	{	if(rhs.i == i)
 		{	return true;
 		}	
 		return false;
 	}
 	void OpPlusPlus()
-	{	head++;
-		if(head>=q.Capacity())
-		{	head = 0;
+	{	i++;
+		if(i>=q.Capacity())
+		{	i = 0;
 	}	}
 public:
-	RingQueueIterator<T>(const RingQueueBase& q,T* buffer)
+	RingQueueIterator<T>(const RingQueueBase& q,T* buffer,int i)
 	:	q(q)
 	,	buffer(buffer)
-	{	head = q.Head();
-	}
+	,	i(i)
+	{}
 	bool operator==(const RingQueueIterator<T>& rhs) const
 	{	return OpEqEq(rhs);
 	}
@@ -79,9 +73,9 @@ public:
 		return *this;
 	}
 	operator T*()
-	{	return q[head];
+	{	return q[i];
 	}
-	typedef std::bidirectional_iterator_tag iterator_category;
+	typedef std::forward_iterator_tag iterator_category;
 	typedef T value_type;
 	typedef ptrdiff_t difference_type;
 	typedef T* pointer;
@@ -92,8 +86,8 @@ template <typename T>
 class ConstRingQueueIterator
 :	public RingQueueIterator<T>
 {public:
-	ConstRingQueueIterator(const RingQueueBase& q,const T* buffer)
-	:	RingQueueIterator(q,(T*)buffer)
+	ConstRingQueueIterator(const RingQueueBase& q,const T* buffer,int i)
+	:	RingQueueIterator(q,(T*)buffer,i)
 	{}
 	bool operator==(const ConstRingQueueIterator& rhs) const
 	{	return OpEqEq(rhs);
@@ -106,11 +100,11 @@ class ConstRingQueueIterator
 		return *this;
 	}
 	operator T*() const
-	{	return (T*)buffer+head;
+	{	return (T*)buffer+i;
 	}
 };
 
-template <typename T,unsigned capacity2>
+template <typename T,int capacity2>
 class RingQueue
 :	public RingQueueBase
 {	T q[capacity2+1];
@@ -121,16 +115,16 @@ public:
 	,	isGood(false)
 	{}
 	RingQueueIterator<T> begin()
-	{	return RingQueueIterator<T>(*this,q);
+	{	return RingQueueIterator<T>(*this,q,head);
 	}
 	RingQueueIterator<T> end()
-	{	return RingQueueIterator<T>(*this,q);
+	{	return RingQueueIterator<T>(*this,q,tail);
 	}
 	ConstRingQueueIterator<T> begin() const
-	{	return ConstRingQueueIterator<T>(*this,q);
+	{	return ConstRingQueueIterator<T>(*this,q,head);
 	}
 	ConstRingQueueIterator<T> end() const
-	{	return ConstRingQueueIterator<T>(*this,q);
+	{	return ConstRingQueueIterator<T>(*this,q,tail);
 	}
 	void* operator new(size_t size,void* pool) throw()
 	{	if(!pool)
@@ -156,7 +150,7 @@ public:
 	{	return q+capacity;
 	}
 	void Clear(int init = 0)
-	{	for(unsigned i = 0;i<capacity;i++)
+	{	for(int i = 0;i<capacity;i++)
 		{	q[i] = init;
 	}	}
 	T& Front()
