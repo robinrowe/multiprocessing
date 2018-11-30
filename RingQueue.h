@@ -12,7 +12,9 @@
 
 class RingQueueBase
 {protected:
-	const int usefulCapacity;
+// Useful capacity is limited to one less than capacity.
+// If allowed head == tail to happen on full, that would look the same as being empty.
+	const int usefulCapacity; 
 	int head;
 	int tail;
 	RingQueueBase(int usefulCapacity)
@@ -29,7 +31,8 @@ public:
 		if(spread>=0)
 		{	return spread;
 		}
-		return usefulCapacity+spread+1;
+		const int capacity = usefulCapacity+1;
+		return capacity+spread;
 	}
 	size_t Capacity() const
 	{	return usefulCapacity;
@@ -174,13 +177,17 @@ public:
 	{	if(IsEmpty())
 		{	return false;
 		}
-		if(head < capacity)
-		{	head++;
-		}
-		else
+		head++;
+		if(head > capacity)
 		{	head = 0;
 		}
 		return true;
+	}
+	const int Head() const
+	{	return head;
+	}
+	const int Tail() const
+	{	return tail;
 	}
 };
 
@@ -190,7 +197,6 @@ std::ostream& operator<<(std::ostream& os,const RingQueue<T,size>& q)
 	{	os << n << " ";
 	};
 	for_each(q.begin(),q.end(),print);
-	os	<< "(Count = " << q.Count() << ", Capacity = " << q.Capacity() << ")";
 	return os;
 }
 

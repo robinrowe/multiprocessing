@@ -71,3 +71,21 @@ Use the HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Kern
 http://www.alex-ionescu.com/?p=16
 
 */
+/*
+User Rights Assignment:
+
+https://docs.microsoft.com/en-us/windows/security/threat-protection/security-policy-settings/user-rights-assignment
+
+Create global objects:	SeCreateGlobalPrivilege
+
+https://docs.microsoft.com/en-us/windows/security/threat-protection/security-policy-settings/create-global-objects
+
+By default, members of the Administrators group, the System account, and services that are started by the Service Control Manager are assigned the Create global objects user right. Users who are added to the Remote Desktop Users group also have this user right.
+
+Countermeasure
+When non-administrators need to access a server using Remote Desktop, add the users to the Remote Desktop Users group rather than assining them this user right.
+
+Vulnerability
+Caution: A user account that is given this user right has complete control over the system, and it can lead to the system being compromised. We highly recommend that you do not assign this right to any user accounts.
+
+*/
