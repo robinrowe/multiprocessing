@@ -7,9 +7,7 @@
 #include <thread>
 #include "RingQueue.h"
 #include "SharedMemory.h"
-#ifdef SEMAPHORE
 #include "Semaphore.h"
-#endif
 #include "Product.h"
 using namespace std;
 
@@ -38,14 +36,13 @@ int main()
 	{	cout << "Shared memory failed!" << endl;
 		return 1;
 	}
-#ifdef SEMAPHORE
 	IPC::Semaphore sem;
 	if(!sem.Open(semKey))
 	{	cout << "Semaphore failed!" << endl;
 		return 2;
 	}
-#endif
 	Producer producer;
+	queue->SetProducer();
 	for(unsigned i = 0;i<100;i++)
 	{	Product product = producer.Generate();
 		if(product.id % 19)// 1 in 20 per spec. Or, 13? Or, uniform_int_distribution? 
@@ -53,16 +50,12 @@ int main()
 			continue;
 		}
 		cout << product << endl;
-		{	
-#ifdef SEMAPHORE
-			IPC::Lock lock(sem);
-#endif
-			if(!queue->Push(product))
+		{	if(!queue->Push(product))
 			{	cout << "DROPPED <" << product.id << ">" << endl;
 		}	} 
 		std::this_thread::sleep_for(2s);
 	}
-	queue->Set(false);
+	sem.Close();
 	cout << "Done!" << endl;
 	return 0;
 }

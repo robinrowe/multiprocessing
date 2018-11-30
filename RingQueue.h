@@ -111,12 +111,19 @@ template <typename T,int capacity>
 class RingQueue
 :	public RingQueueBase
 {	T q[capacity+1];
-	bool isGood;
+	enum Access {any,producer,consumer};
+	Access access;
 public:
 	RingQueue()
 	:	RingQueueBase(capacity)
-	,	isGood(false)
+	,	access(any)
 	{}
+	void SetProducer()
+	{	access = producer;
+	}
+	void SetConsumer()
+	{	access = consumer;
+	}
 	RingQueueIterator<T> begin()
 	{	return RingQueueIterator<T>(*this,q,head);
 	}
@@ -143,12 +150,6 @@ public:
 		IPC::MemoryPool* p = static_cast<IPC::MemoryPool*>(pool); 
 		p->Deallocate(ptr);
 	}
-	void Set(bool isGood = true)
-	{	this->isGood = isGood;
-	}
-	bool IsGood() const
-	{	return isGood;
-	}
 	const T* Fence() const
 	{	return q+capacity;
 	}
@@ -163,7 +164,10 @@ public:
 	{	return q[head];
 	}
 	bool Push(const T& v)
-	{	if(IsFull())
+	{	if(consumer == access)
+		{	return false;
+		}
+		if(IsFull())
 		{	return false;
 		}
 		q[tail] = v;
@@ -174,7 +178,10 @@ public:
 		return true;
 	}
 	bool Pop()
-	{	if(IsEmpty())
+	{	if(producer == access)
+		{	return false;
+		}
+		if(IsEmpty())
 		{	return false;
 		}
 		head++;
