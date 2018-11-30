@@ -8,7 +8,7 @@ using namespace std;
 // #define USE_CIN
 
 int main()
-{	const int size = 5;
+{	const int size = 3;
 	const int init = -1;
 	RingQueue<int,size> q;
 	q.Clear(init);
@@ -16,7 +16,8 @@ int main()
 	istream& is(cin);
 	cout << "Enter some integers (enter 0 to end):\n";
 #else
-	const char* data = "1 2 3 4 5 p q";
+//	const char* data = "1 2 3 4 5 p q";
+	const char* data = "1 2 3 p p 4 5 p q";
 	cout << "Data: " << data << endl;
 	istringstream istr(data);
 	istream& is(istr);
@@ -24,6 +25,7 @@ int main()
 	string s;
 	for(;;)
 	{	is >> s;
+		printf("%s: ",s.c_str());
 		if(is.fail() || s[0]=='q')// quit
 		{	break;
 		}
@@ -36,7 +38,7 @@ int main()
 		}
 		cout << q << endl;
 	}
-	cout << "Winding down... dequeue: ";
+	cout << endl << "Winding down... dequeue: ";
 	while(!q.IsEmpty())
 	{	cout << ' ' << q.Front();
 		q.Pop();

@@ -12,11 +12,11 @@
 
 class RingQueueBase
 {protected:
-	const int capacity;
+	const int usefulCapacity;
 	int head;
 	int tail;
-	RingQueueBase(int capacity)
-	:	capacity(capacity)
+	RingQueueBase(int usefulCapacity)
+	:	usefulCapacity(usefulCapacity)
 	,	head(0)
 	,	tail(0)
 	{}
@@ -29,13 +29,13 @@ public:
 		if(spread>=0)
 		{	return spread;
 		}
-		return capacity+spread;
+		return usefulCapacity+spread+1;
 	}
 	size_t Capacity() const
-	{	return capacity;
+	{	return usefulCapacity;
 	}
 	bool IsFull() const
-	{	return Count() == capacity;
+	{	return Count() == usefulCapacity;
 	}
 };
 
@@ -53,7 +53,7 @@ class RingQueueIterator
 	}
 	void OpPlusPlus()
 	{	i++;
-		if(i>=q.Capacity())
+		if(i > q.Capacity())
 		{	i = 0;
 	}	}
 public:
@@ -104,14 +104,14 @@ class ConstRingQueueIterator
 	}
 };
 
-template <typename T,int capacity2>
+template <typename T,int capacity>
 class RingQueue
 :	public RingQueueBase
-{	T q[capacity2+1];
+{	T q[capacity+1];
 	bool isGood;
 public:
 	RingQueue()
-	:	RingQueueBase(capacity2+1)
+	:	RingQueueBase(capacity)
 	,	isGood(false)
 	{}
 	RingQueueIterator<T> begin()
@@ -164,10 +164,8 @@ public:
 		{	return false;
 		}
 		q[tail] = v;
-		if(tail < capacity)
-		{	tail++;
-		}
-		else
+		tail++;
+		if(tail > capacity)
 		{	tail = 0;
 		}
 		return true;
@@ -192,8 +190,7 @@ std::ostream& operator<<(std::ostream& os,const RingQueue<T,size>& q)
 	{	os << n << " ";
 	};
 	for_each(q.begin(),q.end(),print);
-	os << endl << "Count = " << q.Count() 
-		<< ", Max = " << q.Capacity();
+	os	<< "(Count = " << q.Count() << ", Capacity = " << q.Capacity() << ")";
 	return os;
 }
 
