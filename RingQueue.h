@@ -10,13 +10,15 @@
 #include <algorithm>
 #include "MemoryPool.h"
 
+typedef int ring_dif;
+
 class RingQueueBase
 {protected:
 // Useful capacity is limited to one less than capacity.
 // If allowed head == tail to happen on full, that would look the same as being empty.
 	const int usefulCapacity; 
-	int head;
-	int tail;
+	ring_dif head;
+	ring_dif tail;
 	RingQueueBase(int usefulCapacity)
 	:	usefulCapacity(usefulCapacity)
 	,	head(0)
@@ -26,7 +28,7 @@ public:
 	bool IsEmpty() const
 	{	return head == tail;
 	}
-	size_t Count() const
+	int Count() const
 	{	const int spread = tail-head;
 		if(spread>=0)
 		{	return spread;
@@ -34,7 +36,7 @@ public:
 		const int capacity = usefulCapacity+1;
 		return capacity+spread;
 	}
-	size_t Capacity() const
+	int Capacity() const
 	{	return usefulCapacity;
 	}
 	bool IsFull() const

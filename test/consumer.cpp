@@ -15,16 +15,16 @@ class Consumer
 {	unsigned count;
     std::random_device rd;  
     std::mt19937 gen; 
-    std::uniform_real_distribution<> dis;
+    std::uniform_real_distribution<> dist;
 public:
 	Consumer()
 	:	count(0)
 	,	gen(rd()) 
-    ,	dis(1.,3.)
+    ,	dist(1.,3.)
 	{}
 	void Sleep()
 	{	using Delay = std::chrono::duration<double,std::milli>;
-		std::this_thread::sleep_for(Delay(dis(gen)));
+		std::this_thread::sleep_for(Delay(dist(gen)));
 	}
 };
 

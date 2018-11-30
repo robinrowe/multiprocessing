@@ -37,7 +37,7 @@ class SharedMemoryWin
 //hFile = CreateFile(argv[1],GENERIC_WRITE|GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_ALWAYS,NULL,NULL);
 		id = CreateFileMappingA(sharedMemory,0,PAGE_READWRITE,0,0,/*(DWORD)size*/name.c_str());
 		if (id == NULL || id == INVALID_HANDLE_VALUE)
-		{	PrintError("CreateFileMappingA");
+		{	PrintError("CreateFileMapping: Shared memory user must be in the Remote Desktop Users group");
 			return false;
 		}
 		p = MapViewOfFile(id,FILE_MAP_ALL_ACCESS,0,0,size);           
