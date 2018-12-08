@@ -3,102 +3,123 @@
 * text to spawned processes.
 */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <io.h>
-#include <fcntl.h>
-#include <process.h>
-#include <math.h>
-#include <string>
-using namespace std;
+#include "Pipes.h"
 
-class StdioRedirect
-{	int fdpipe[2];
-	intptr_t pid;
-	enum PIPES { READ, WRITE }; /* Constants 0 and 1 for READ and WRITE */
+class Status
+{	int status;
+	const char* statusMsg;
 public:
-	StdioRedirect()
-	{	fdpipe[0]=-1;
-		fdpipe[1]=-1;
-		pid=-1;
+	enum 
+	{	ok,
+		usage,
+		cannot_open_pipes,
+		cannot_spawn,
+		child_failed
+	};
+	Status()
+	:	status(ok)
+	,	statusMsg("ok")
+	{}
+	void Set(int status,const char* statusMsg)
+	{	this->status = status;
+		this->statusMsg = statusMsg;
 	}
-	bool Open()
-	{	if(_pipe(fdpipe, 256, O_BINARY) == -1)
-		{	return false;
+	operator int() const
+	{	puts(statusMsg);
+		return status;
+	}
+	operator const char*() const
+	{	return statusMsg;
+	}
+};
+
+static Status status;
+#define SetStatus(m) status.Set(Status::m,#m)
+
+class Server
+{	Pipes server;
+public:
+	bool Open(const char* child)
+	{	if(!server.Open())
+		{	SetStatus(cannot_open_pipes);
+			return false;
 		}
-		setvbuf(stdout, NULL, _IONBF, 0);
-		fflush(stdout);
-		_dup2(fdpipe[WRITE],1);
+		if(!server.Spawn(child))
+		{	SetStatus(cannot_spawn);
+			return false;
+		}
 		return true;
 	}
-	bool Open(const char* pipeRead,const char* pipeWrite)
-	{	fdpipe[READ] = atoi(pipeRead);
-		fdpipe[WRITE] = atoi(pipeRead);
-		return true;
-	}
-	bool Spawn(const char* program)
-	{	/* Convert pipe read descriptor to string and pass as argument
-		 * to spawned program. Program spawns itself (argv[0]).
-		 */
-		const string s = std::to_string(fdpipe[READ]);
-		pid = _spawnl(P_NOWAIT,program,program,s.c_str(), NULL);
-		if (pid == -1)
-		{	return false;
+	bool Run()
+	{	std::string s;
+		for(int i = 1; i <= 100; i++)
+		{	s = std::to_string(i);
+			s+=' ';
+			server.Write(s);
+			printf("Server: %d \n",i);
 		}
-		return true;
-	}
-	bool WaitChild()
-	{	/* Wait until spawned program is done processing. */
-		int termstat;
-		_cwait(&termstat, pid, WAIT_CHILD);
-		if(termstat & 0x0)
-		{	return false;
+		if(!server.WaitChild())		
+		{	SetStatus(child_failed);
+			return false;
 		}
-		_close(fdpipe[READ]);
-		_close(fdpipe[WRITE]);
+		SetStatus(ok);
 		return true;
 	}
 };
 
+class Child
+{	Pipes child;
+	std::string s;
+public:
+	Child()
+	{	const size_t bufsize = 80;
+		s.reserve(bufsize);
+	}
+	bool Open(const char* pipeRead,const char* pipeWrite)
+	{	return child.Open(pipeRead,pipeWrite);
+	}
+	bool Run()
+	{	/* Read problem from pipe and calculate solution. */
+		for(int i = 0; i<100; i++)
+		{	child.Read((char*) s.c_str(),s.capacity());
+			printf("Child: square root of %d is %3.2f.\n",i, sqrt((double)i));
+		}
+		SetStatus(ok);
+		return true;
+	}
+};
+
+void Usage()
+{	puts("Invalid input");
+	SetStatus(usage);
+}
+
 int main(int argc, char *argv[])
-{	/* If no arguments, this is the spawning process */
-	if(argc == 1)
-	{	StdioRedirect server;
-		if(!server.Open())
-		{	puts("Can't open pipes");
-			return 1;
+{	enum 
+	{	parentProcess = 1,
+		childProcess = 3
+	};
+	switch(argc)
+	{	default:
+		{	Usage();
+			return status;
 		}
-		if(!server.Spawn(argv[0]))
-		{	puts("Can't spawn");
-			return 2;
+		case parentProcess:
+		{	Server server;
+			if(server.Open(argv[0]))
+			{	server.Run();
+			}
+			return status;
 		}
-		/* Put problem in write pipe. Since spawned program is
-		 * running simultaneously, first solutions may be done
-		 * before last problem is given.
-		 */
-		for(int i = 1; i <= 100; i++)
-		{	//printf(".");
-			//_write(fdpipe[WRITE], (char *)&problem, sizeof(int));
-			printf("%d ",i);
-		}
-		if(!server.WaitChild())		
-		{	printf("Child failed\n");
-		}
-		return 0;
-	}
-	if(argc<3)
-	{	puts("usage");
-		return 3;
-	}
-	StdioRedirect child;
-	child.Open(argv[1],argv[2]);
-	int problem = 0;
-	/* Read problem from pipe and calculate solution. */
-	for(int i = 0; i<100; i++)
-	{//	_read(fdpipe[READ], (char *)&problem, sizeof(int));
-		printf("Dad, the square root of %d is %3.2f.\n",problem, sqrt((double)problem));
-	}
-	return 0;
+		case childProcess:
+		{	Child child;
+			if(!child.Open(argv[1],argv[2]))
+			{	return status;
+			}
+			child.Run();
+			return status;	
+	}	}
+	return status;
 }
 
 #if 0
