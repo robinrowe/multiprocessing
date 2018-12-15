@@ -80,6 +80,7 @@ public:
 	}
 	bool Run()
 	{	/* Read problem from pipe and calculate solution. */
+//		child.Dup2(0,0);//bug
 		for(int i = 0; i<100; i++)
 		{	child.Read((char*) s.c_str(),s.capacity());
 			printf("Child: square root of %d is %3.2f.\n",i, sqrt((double)i));
@@ -231,29 +232,6 @@ int main(int argc, char** argv)
    }
    return nExitCode;
 }
-#endif
-#if 0
-/*A tricky use of dup2() system call: As in dup2(), in place of newfd any file descriptor can be put. Below is a C implementation in which the file descriptor of Standard output (stdout) is used. This will lead all the printf() statements to be written in the file referred by the old file descriptor.
-*/
-// CPP program to illustrate dup2()  
-#include<stdlib.h> 
-#include<unistd.h> 
-#include<stdio.h> 
-#include<fcntl.h> 
-  
-int main() 
-{ 
-    int file_desc = open("tricky.txt",O_WRONLY | O_APPEND); 
-      
-    // here the newfd is the file descriptor of stdout (i.e. 1) 
-    dup2(file_desc, 1) ;  
-          
-    // All the printf statements will be written in the file 
-    // "tricky.txt" 
-    printf("I will be printed in the file tricky.txt\n"); 
-      
-return 0; 
-} 
 #endif
 
 #if 0

@@ -17,6 +17,15 @@ class Pipes
 	intptr_t pid;
 	enum PIPES { READ, WRITE }; /* Constants 0 and 1 for READ and WRITE */
 	std::string s;
+	bool Dup2(int oldfd,int newfd)
+	{	int fid = _dup2(oldfd,newfd); 
+//  while ((dup2(filedes[1], STDOUT_FILENO) == -1) && (errno == EINTR)) {}
+		if(-1 == fid)
+		{	return false;
+		}
+		_close(oldfd);
+		return true;
+	}
 public:
 	Pipes(int bufsize = 0)
 	{	fdpipe[0]=-1;
@@ -68,6 +77,28 @@ public:
 	bool Read(char* buffer,size_t bufsize)
 	{	const int bytes = _read(fdpipe[READ],buffer,(unsigned)bufsize);
 		return -1 != bytes;
+	}
+	bool RedirectToConsole()
+	{	if(!Dup2(fdpipe[WRITE],_fileno(stdout)))
+		{	return false;
+		}
+		fdpipe[WRITE] = -1;
+		if(!Dup2(fdpipe[READ],_fileno(stdin)))
+		{	return false;
+		}
+		fdpipe[READ] = -1;
+		return true;
+	}
+	bool RedirectFromConsole()
+	{	if(!Dup2(_fileno(stdout),fdpipe[WRITE]))
+		{	return false;
+		}
+		fdpipe[WRITE] = -1;
+		if(!Dup2(_fileno(stdin),fdpipe[READ]))
+		{	return false;
+		}
+		fdpipe[READ] = -1;
+		return true;
 	}
 };
 

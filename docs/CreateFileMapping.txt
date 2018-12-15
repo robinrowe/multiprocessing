@@ -1,0 +1,78 @@
+
+#include "common.h"
+ 
+#include <stdio.h>
+#include <conio.h>
+ 
+#define BUF_SIZE 2560
+ 
+TCHAR szName[]=_T("MyFileMappingObject");
+TCHAR szMsg[]=_T("Msg from first process");
+ 
+int _tmain(int argc, TCHAR** argv)
+{
+    HANDLE hMapFile;
+    LPCTSTR pBuf;
+ 
+    HANDLE hFile = INVALID_HANDLE_VALUE;
+ 
+    Debugger debug;
+ 
+    if(argc>=2)
+    {
+        hFile = CreateFile(argv[1],GENERIC_WRITE|GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_ALWAYS,NULL,NULL);
+        debug.logBegin(CREATE_FILE_MAPPING);
+    }
+ 
+    hMapFile = CreateFileMapping(
+        //INVALID_HANDLE_VALUE,    // use paging file, Creating Named Shared Memory
+        hFile,
+        NULL,                    // default security
+        PAGE_READWRITE,          // read/write access
+        0,                       // max. object size
+        BUF_SIZE,                // buffer size
+        szName);                 // name of mapping object
+ 
+    if (hMapFile == NULL || hMapFile == INVALID_HANDLE_VALUE)
+    {
+        printf("Could not create file mapping object (%d).\n",
+            GetLastError());
+        return -1;
+    }
+ 
+    pBuf = (LPTSTR) MapViewOfFile(hMapFile,   // handle to map object
+        FILE_MAP_ALL_ACCESS, // read/write permission
+        0,
+        0,
+        BUF_SIZE);           
+ 
+    if (pBuf == NULL)
+    {
+        printf("Could not map view of file (%d).\n",
+            GetLastError());
+        return -2;
+    }
+ 
+    if(argc>=2)
+    {
+        CopyMemory((PVOID)(pBuf+352), szMsg, _tcslen(szMsg));  // write a msg to the PE file at address of 352 : 0x2c0
+    }
+    else
+    {
+        CopyMemory((PVOID)pBuf, szMsg, _tcslen(szMsg));
+    }
+ 
+    // wait for OpenFileMapping to read the view of file
+    getchar();
+ 
+    UnmapViewOfFile(pBuf);
+ 
+    CloseHandle(hMapFile);
+ 
+    if(argc>=2)
+    {
+        debug.logEnd(CREATE_FILE_MAPPING);
+    }
+ 
+    return 0;
+}

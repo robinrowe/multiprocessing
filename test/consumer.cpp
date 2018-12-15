@@ -9,7 +9,10 @@
 #include "SharedMemory.h"
 #include "Semaphore.h"
 #include "Product.h"
+#include "Launcher.h"
 using namespace std;
+
+// #define USE_SEMAPHORE
 
 class Consumer
 {	unsigned count;
@@ -44,9 +47,18 @@ int main()
 	Consumer consumer;
 	unsigned id = 0;
 	queue->SetConsumer();
+	Launcher launcher;
+	const char* childProgramName = "";
+	if(!launcher.Spawn(childProgramName))
+	{	cout << "Spawn failed!" << endl;
+		return 3;
+	}
 	while(sem.Lock() || !queue->IsEmpty())
 	{	sem.Unlock();
 		consumer.Sleep();
+#ifdef USE_SEMAPHORE
+		IPC::Lock lock(sem);
+#endif
 		if(queue->IsEmpty())
 		{	continue;
 		}
@@ -60,6 +72,7 @@ int main()
 		}
 		id = product.id;
 	}
+	launcher.WaitChild();
 	cout << "Done!" << endl;
 	return 0;
 }

@@ -11,16 +11,20 @@
 #include "Product.h"
 using namespace std;
 
+// #define USE_SEMAPHORE
+
 class Producer
 {	unsigned count;
     std::random_device rd;  
     std::mt19937 gen; 
     std::uniform_real_distribution<> dis;
+	int pid;
 public:
 	Producer()
 	:	count(0)
 	,	gen(rd()) 
     ,	dis(0.5,1.5)
+	,	pid(0)
 	{}
 	Product Generate()
 	{	count++;
@@ -50,12 +54,15 @@ int main()
 			continue;
 		}
 		cout << product << endl;
-		{	if(!queue->Push(product))
+		{
+#ifdef USE_SEMAPHORE
+			IPC::Lock lock(sem);
+#endif
+			if(!queue->Push(product))
 			{	cout << "DROPPED <" << product.id << ">" << endl;
 		}	} 
 		std::this_thread::sleep_for(2s);
 	}
-	sem.Close();
 	cout << "Done!" << endl;
 	return 0;
 }

@@ -26,13 +26,14 @@ public:
 	Semaphore()
 	:	id(0)
 	{}
-	bool Close()
+	~Semaphore()
+	{	Close();
+	}
+	void Close()
 	{	if(id>0)
 		{	CloseHandle(id);
 			id = 0;
-		}
-		return true;
-	}
+	}	}
 	bool Open(key_t key)
 	{	Close();
 		std::string s = std::to_string(key);
@@ -97,14 +98,15 @@ public:
 	Semaphore()
 	:	id(0)
 	{}
-	bool Close()
+	~Semaphore()
+	{	Close();
+	}
+	void Close()
 	{	int err = semctl(id,0,IPC_RMID);
 		if(-1 == id)
 		{	PrintError("semctl");
-			return false;
-		}
-		return true;
-	}
+			return;
+	}	}
 	bool Open(key_t key,int flag = 0)
 	{	Close();
 		id = semget(key,1,flag);
