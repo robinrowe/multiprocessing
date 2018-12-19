@@ -36,19 +36,33 @@ class SharedMemorySysV
 		}
 		return true;
 	}
-	bool Open(size_t size) override
+	void* Create(size_t size) override
 	{	key_t key = ftok(name.c_str(),65); 
 		id = shmget(key,size,0644 | IPC_CREAT);
 		if(id == -1) 
 		{	PrintError("shmget");
-			return false;
+			return 0;
 		}
 		p = shmat(id,0,0);
 		if(p == (char *)(-1))
 		{	PrintError("shmat");
-			return false;
+			return 0;
 		}
-		return true;
+		return p;
+	}
+	void* Open(size_t size) override
+	{	key_t key = ftok(name.c_str(),65); 
+		id = shmget(key,size,0644 | 0);
+		if(id == -1) 
+		{	PrintError("shmget");
+			return 0;
+		}
+		p = shmat(id,0,0);
+		if(p == (char *)(-1))
+		{	PrintError("shmat");
+			return 0;
+		}
+		return p;
 	}
 public:
 	SharedMemorySysV(const char* name,bool isAllocator)

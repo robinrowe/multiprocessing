@@ -96,6 +96,7 @@ namespace IPC {
 
 #include <sys/ipc.h>
 #include <sys/sem.h>
+#include <string.h>
 
 class Semaphore
 {	int id;
@@ -142,7 +143,7 @@ public:
 	{	return Open(key,IPC_CREAT | 0666);
 	}
 	bool Lock(int lockVal = -1)
-	{	semun op;
+	{	sembuf op;
 		op.sem_num = 0;
 		op.sem_op = lockVal;
 		op.sem_flg = 0;

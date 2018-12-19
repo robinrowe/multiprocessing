@@ -27,7 +27,14 @@ set(HEADERS
 	${MEMORY}
 )
 
+add_definitions(-DMEM_SYS_V)
+
+add_executable(test_std_queue test/test_std_queue.cpp)
+add_executable(test_ring_queue RingQueue.h test/test_ring_queue.cpp)
+
 add_executable(test_producer ${HEADERS} test/Producer.h test/test_producer.cpp)
+target_link_libraries(test_producer rt pthread)
+
 add_executable(test_consumer ${HEADERS} test/Consumer.h test/test_consumer.cpp)
-add_executable(test_std_queue ${HEADERS} test/test_std_queue.cpp)
-add_executable(test_ring_queue ${HEADERS} test/test_ring_queue.cpp)
+target_link_libraries(test_consumer rt pthread)
+

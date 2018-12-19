@@ -78,7 +78,7 @@ public:
 		return *this;
 	}
 	operator T*()
-	{	return q[i];
+	{	return buffer+i;
 	}
 	typedef std::forward_iterator_tag iterator_category;
 	typedef T value_type;
@@ -92,20 +92,20 @@ class ConstRingQueueIterator
 :	public RingQueueIterator<T>
 {public:
 	ConstRingQueueIterator(const RingQueueBase& q,const T* buffer,int i)
-	:	RingQueueIterator(q,(T*)buffer,i)
+	:	RingQueueIterator<T>(q,(T*)buffer,i)
 	{}
-	bool operator==(const ConstRingQueueIterator& rhs) const
-	{	return OpEqEq(rhs);
+	bool operator==(const ConstRingQueueIterator<T>& rhs) const
+	{	return RingQueueIterator<T>::OpEqEq(rhs);
 	}
-	bool operator!=(const ConstRingQueueIterator& rhs) const
-	{	return !OpEqEq(rhs);
+	bool operator!=(const ConstRingQueueIterator<T>& rhs) const
+	{	return !RingQueueIterator<T>::OpEqEq(rhs);
 	}
 	ConstRingQueueIterator<T>& operator++()
-	{	OpPlusPlus();
+	{	RingQueueIterator<T>::OpPlusPlus();
 		return *this;
 	}
 	operator T*() const
-	{	return (T*)buffer+i;
+	{	return (T*) RingQueueIterator<T>::buffer+RingQueueIterator<T>::i;
 	}
 };
 
@@ -191,7 +191,7 @@ std::ostream& operator<<(std::ostream& os,const RingQueue<T,size>& q)
 {	auto print = [&](const T& n)
 	{	os << n << " ";
 	};
-	for_each(q.begin(),q.end(),print);
+	std::for_each(q.begin(),q.end(),print);
 	return os;
 }
 

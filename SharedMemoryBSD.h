@@ -37,16 +37,16 @@ protected:
 	{	fd = 0;
 		MemoryPool::Reset();
 	}
-	bool Create(size_t size)
+	void* Create(size_t size)
 	{	int oflags = O_RDWR | O_CREAT;
 		fd = shm_open(name.c_str(),oflags,0644);
 		if(fd<=0)
 		{	PrintError("shm_open");
-			return false;
+			return 0;
 		}
 		shm_ftruncate(fd,size);
 		p = mmap(NULL,size,PROT_READ|PROT_WRITE,MAP_SHARED,fd,0);
-		return true;
+		return p;
 	}
 	bool Close() override
 	{	int err = 0;
@@ -56,19 +56,16 @@ protected:
 		}
 		return (err == 0) && shm_close(fd);
 	}
-	bool Open(size_t size) override
-	{	if(isAllocator)
-		{	return Create(size);
-		}
-		int oflags=O_RDWR;
+	void* Open(size_t size) override
+	{	int oflags=O_RDWR;
 		fd = shm_open(name.c_str(),oflags,0644);
 		if(fd<=0)
 		{	PrintError("shm_open");
-			return false;
+			return 0;
 		}
 		size = shm_size(fd)/sizeof(*this);
 		p = mmap(NULL,size,PROT_READ|PROT_WRITE,MAP_SHARED,fd,0);
-		return true;
+		return p;
 	}
 public:
 	SharedMemoryBSD(const char* name,bool isAllocator)

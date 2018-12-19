@@ -8,9 +8,15 @@ namespace IPC
 {	typedef SharedMemoryWin SharedMemory;
 }
 #else
+#ifdef MEM_SYS_V
 #include "SharedMemorySysV.h"
-#include "SharedMemoryBSD.h"
 namespace IPC
 {	typedef SharedMemorySysV SharedMemory;
 }
+#else
+#include "SharedMemoryBSD.h"
+namespace IPC
+{	typedef SharedMemoryBSD SharedMemory;
+}
+#endif
 #endif
