@@ -113,19 +113,10 @@ template <typename T,int capacity>
 class RingQueue
 :	public RingQueueBase
 {	T q[capacity+1];
-	enum Access {any,producer,consumer};
-	Access access;
 public:
 	RingQueue()
 	:	RingQueueBase(capacity)
-	,	access(any)
 	{}
-	void SetProducer()
-	{	access = producer;
-	}
-	void SetConsumer()
-	{	access = consumer;
-	}
 	RingQueueIterator<T> begin()
 	{	return RingQueueIterator<T>(*this,q,head);
 	}
@@ -166,11 +157,9 @@ public:
 	{	return q[head];
 	}
 	bool Push(const T& v)
-	{	if(consumer == access)
-		{	return false;
-		}
-		if(IsFull())
-		{	return false;
+	{	if(IsFull())
+		{	puts("is full can't push");
+			return false;
 		}
 		q[tail] = v;
 		tail++;
@@ -180,10 +169,7 @@ public:
 		return true;
 	}
 	bool Pop()
-	{	if(producer == access)
-		{	return false;
-		}
-		if(IsEmpty())
+	{	if(IsEmpty())
 		{	return false;
 		}
 		head++;

@@ -19,6 +19,7 @@ include_directories(.)
 set(HEADERS
 	Launcher.h
 	MemoryPool.h
+	Pipes.h
 	Product.h
 	RingQueue.h
 	Semaphore.h
@@ -27,7 +28,11 @@ set(HEADERS
 	${MEMORY}
 )
 
-add_executable(test_producer ${HEADERS} test/Producer.h test/test_producer.cpp)
-add_executable(test_consumer ${HEADERS} test/Consumer.h test/test_consumer.cpp)
+add_executable(producer ${HEADERS} test/producer.cpp)
+add_executable(consumer ${HEADERS} test/consumer.cpp)
 add_executable(test_std_queue ${HEADERS} test/test_std_queue.cpp)
 add_executable(test_ring_queue ${HEADERS} test/test_ring_queue.cpp)
+add_executable(pipe_io ${HEADERS} test/pipe_io.cpp)
+add_executable(stdio_client ${HEADERS} test/stdio_client.cpp)
+add_executable(stdio_server ${HEADERS} test/stdio_server.cpp)
+add_executable(test_dup test/test_dup.cpp)

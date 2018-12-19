@@ -12,7 +12,7 @@
 #endif
 
 class Launcher
-{	int pid;
+{	intptr_t pid;
 public:
 	Launcher()
 	:	pid(0)

@@ -31,8 +31,11 @@ class MemoryPool
 	virtual bool Close()
 	{	return false;
 	}
-	virtual bool Open(size_t size)
-	{	return false;
+	virtual void* Create(size_t size)
+	{	return 0;
+	}
+	virtual void* Open(size_t size)
+	{	return 0;
 	}
 public:
 	MemoryPool()
@@ -42,10 +45,7 @@ public:
 	{	Close();
 	}
 	void* Allocate(size_t size)
-	{	if(!Open(size))
-		{	return 0;
-		}		
-		return p;
+	{	return isAllocator? Create(size):Open(size);
 	}
 	void Deallocate(void* p)
 	{	if(this->p == p)
