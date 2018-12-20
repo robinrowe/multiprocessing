@@ -18,7 +18,8 @@ enum
 #ifdef _WIN32
 #define PRODUCER "/code/github/multiprocessing/build-win64/Debug/test_producer.exe"
 #else
-#define PRODUCER "/media/sf_code/github/multiprocessing/build-linux/test_producer"
+//#define PRODUCER "/media/sf_code/github/multiprocessing/build-linux/test_producer"
+#define PRODUCER "./test_producer"
 #endif
 
 

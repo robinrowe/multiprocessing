@@ -25,6 +25,10 @@ Builds with BSD shared memory by default. If you prefer System V, define MEM_SYS
 
 FYI, how to enable core dumps in Linux bash, if you need.
 
+## Running
+
+Simply run test_consumer. It will spawn test_producer automatically. For Windows, you must change the #define PRODUCER path in test_consumer.cpp to match where you build executable. The Linux build should just work, spawns ./test_producer.
+
 ## System APIs Utilized
 
 - System V
