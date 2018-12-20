@@ -51,6 +51,7 @@ class SharedMemoryWin
 		{	PrintError("MapViewOfFile");
 			return 0;
 		}
+		SetInfo("SharedMemoryWin create",bufsize);
 		return p;
 	}
 	void* Open(size_t bufsize) override
@@ -66,6 +67,7 @@ class SharedMemoryWin
 		{	PrintError("MapViewOfFile");
 			return 0;
 		}
+		SetInfo("SharedMemoryWin open",bufsize);
 		return p;
 	}
 public:

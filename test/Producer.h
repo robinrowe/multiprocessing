@@ -43,6 +43,7 @@ public:
 		if(!queue)
 		{	return false;
 		}
+		puts(memory.to_string());
 		return true;
 	}
 	bool CreateSemaphore()

@@ -15,15 +15,26 @@ class MemoryPool
 	void* p;
 	bool isAllocator;
 	std::string name;
+	std::string info;
 	void Reset()
 	{	p = 0;
 		isAllocator = false;
 		name.clear();
+		info.clear();
 	}
 	void Init(const char* name,bool isAllocator)
 	{	Reset();
 		this->name = name;
 		this->isAllocator = isAllocator;
+	}
+	void SetInfo(const char* msg,size_t size)
+	{	info = "Memory pool ";
+		info += name;
+		info += ": ";
+		info += msg;
+		info += " ";
+		info += std::to_string(size);
+		info += " bytes";
 	}
 	virtual void PrintError(const char* msg)
 	{	perror(msg);
@@ -51,6 +62,9 @@ public:
 	{	if(this->p == p)
 		{	Close();
 	}	}
+	virtual const char* to_string() const
+	{	return info.c_str();
+	}
 };
 
 }

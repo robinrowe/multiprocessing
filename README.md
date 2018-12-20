@@ -5,11 +5,31 @@ A producer/consumer architecture is the standard approach for building multiproc
 
 The Producer produces a Product object that contains a sequential id (int) and and random floating point number (double) at intervals of between 0.5 and 1.5 seconds. each. The Consumer consumes Products at random intervals between 1.0 and 3.0 seconds.
 
+## Build
+
+Win64:
+
+    cmake .. -A x64
+
+Linux:
+
+    cmake -DCMAKE_BUILD_TYPE=Debug ..
+
+If you want to run in debugger.
+
+    cmake -DMEM_SYS_V ..
+
+Builds with BSD shared memory by default. If you prefer System V, define MEM_SYS_V.
+
+    ulimit -c unlimited
+
+FYI, how to enable core dumps in Linux bash, if you need.
+
 ## System APIs Utilized
 
 - System V
 - POSIX BSD 
-- Windows. 
+- Windows
 
 ## Single Codebase Using Cmake
 

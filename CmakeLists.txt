@@ -9,11 +9,14 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+#add_definitions(-DMEM_SYS_V)
+
 if(WIN32)
-set(MEMORY SharedMemoryWin.h)
-else(UNIX)
-set(MEMORY SharedMemoryBSD.h SharedMemorySysV.h)
+set(PLATFORM windows/SharedMemoryWin.h windows/Semaphore.h windows/Launcher.h)
+else(WIN32)
+set(PLATFORM unix/SharedMemoryBSD.h unix/SharedMemorySysV.h unix/Semaphore.h unix/Launcher.h)
 endif(WIN32)
+
 include_directories(.)
 
 set(HEADERS
@@ -24,17 +27,17 @@ set(HEADERS
 	Semaphore.h
 	SharedMemory.h
 	SystemError.h
-	${MEMORY}
+	${PLATFORM}
 )
-
-add_definitions(-DMEM_SYS_V)
 
 add_executable(test_std_queue test/test_std_queue.cpp)
 add_executable(test_ring_queue RingQueue.h test/test_ring_queue.cpp)
 
 add_executable(test_producer ${HEADERS} test/Producer.h test/test_producer.cpp)
-target_link_libraries(test_producer rt pthread)
-
 add_executable(test_consumer ${HEADERS} test/Consumer.h test/test_consumer.cpp)
+
+if(NOT WIN32)
+target_link_libraries(test_producer rt pthread)
 target_link_libraries(test_consumer rt pthread)
+endif(NOT WIN32)
 

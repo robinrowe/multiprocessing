@@ -15,10 +15,17 @@ enum
 
 #define exit_msg(i) puts(#i); return i
 
+#ifdef _WIN32
+#define PRODUCER "/code/github/multiprocessing/build-win64/Debug/test_producer.exe"
+#else
+#define PRODUCER "/media/sf_code/github/multiprocessing/build-linux/test_producer"
+#endif
+
+
 int main()
 {	puts("Consumer: launched");
 	Consumer consumer;
-	if(!consumer.SpawnProducer())
+	if(!consumer.Spawn(PRODUCER))
 	{	return exit_msg(spawn_failed);
 	}
 	if(!consumer.OpenSharedMemory())

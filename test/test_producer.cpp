@@ -15,7 +15,7 @@ enum
 
 int main()
 {	puts("Producer: launched");
-	const int maxCount = 100;
+	const int maxCount = 10;//100
 	Producer producer(maxCount);
 	if(!producer.CreateSharedMemory())
 	{	return exit_msg(shared_memory_failed);

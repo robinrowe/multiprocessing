@@ -37,6 +37,14 @@ protected:
 	{	fd = 0;
 		MemoryPool::Reset();
 	}
+	bool Close() override
+	{	int err = 0;
+		if(p>0)
+		{	err = munmap(p,shm_size(fd));
+			p = 0;
+		}
+		return (err == 0) && shm_close(fd);
+	}
 	void* Create(size_t size)
 	{	int oflags = O_RDWR | O_CREAT;
 		fd = shm_open(name.c_str(),oflags,0644);
@@ -46,15 +54,8 @@ protected:
 		}
 		shm_ftruncate(fd,size);
 		p = mmap(NULL,size,PROT_READ|PROT_WRITE,MAP_SHARED,fd,0);
+		SetInfo("SharedMemoryBSD create",size);
 		return p;
-	}
-	bool Close() override
-	{	int err = 0;
-		if(p>0)
-		{	err = munmap(p,shm_size(fd));
-			p = 0;
-		}
-		return (err == 0) && shm_close(fd);
 	}
 	void* Open(size_t size) override
 	{	int oflags=O_RDWR;
@@ -63,8 +64,8 @@ protected:
 		{	PrintError("shm_open");
 			return 0;
 		}
-		size = shm_size(fd)/sizeof(*this);
 		p = mmap(NULL,size,PROT_READ|PROT_WRITE,MAP_SHARED,fd,0);
+		SetInfo("SharedMemoryBSD open",size);
 		return p;
 	}
 public:

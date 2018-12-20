@@ -21,7 +21,7 @@ class Consumer
     std::mt19937 gen; 
     std::uniform_real_distribution<> dist;
 	volatile bool isGo;
-	Launcher launcher;
+	IPC::Launcher launcher;
 	IPC::SharedMemory memory;
 	RingQueue<Product,queueSize>* queue;
 	IPC::Semaphore sem;
@@ -38,9 +38,8 @@ public:
 	{	using Delay = std::chrono::duration<double,std::milli>;
 		std::this_thread::sleep_for(Delay(dist(gen)));
 	}
-	bool SpawnProducer()
-	{	const char* childProgramName = "/code/github/multiprocessing/build/Debug/producer.exe";
-		if(!launcher.Spawn(childProgramName))
+	bool Spawn(const char* childProgramName)
+	{	if(!launcher.Spawn(childProgramName))
 		{	return false;
 		}
 		// Give producer time for creating shared resources
@@ -59,6 +58,7 @@ public:
 		if(!queue)
 		{	return false;
 		}
+		puts(memory.to_string());
 		return true;
 	}
 	bool OpenSemaphore()

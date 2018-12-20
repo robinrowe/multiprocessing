@@ -48,6 +48,7 @@ class SharedMemorySysV
 		{	PrintError("shmat");
 			return 0;
 		}
+		SetInfo("SharedMemorySysV create: ",size);
 		return p;
 	}
 	void* Open(size_t size) override
@@ -62,6 +63,7 @@ class SharedMemorySysV
 		{	PrintError("shmat");
 			return 0;
 		}
+		SetInfo("SharedMemorySysV open: ",size);
 		return p;
 	}
 public:

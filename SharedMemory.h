@@ -3,18 +3,21 @@
 // License open source MIT
 
 #ifdef _WIN32
-#include "SharedMemoryWin.h"
+
+#include "windows/SharedMemoryWin.h"
 namespace IPC
 {	typedef SharedMemoryWin SharedMemory;
 }
+
 #else
+
 #ifdef MEM_SYS_V
-#include "SharedMemorySysV.h"
+#include "unix/SharedMemorySysV.h"
 namespace IPC
 {	typedef SharedMemorySysV SharedMemory;
 }
 #else
-#include "SharedMemoryBSD.h"
+#include "unix/SharedMemoryBSD.h"
 namespace IPC
 {	typedef SharedMemoryBSD SharedMemory;
 }
