@@ -3,6 +3,8 @@ By Robin.Rowe@cinepaint.org
 
 Producer-consumer is a popular architecture for building multiprocessing or multithreaded software. This implementation demonstrates multiprocessing, shared memory, memory pools, fixed-size queues and semaphores. 
 
+I've created C++ SharedMemory and Semaphore classes for multi-processing with support for Windows and UNIX. Features a fixed-size RingBuffer queue template I created that doesn't use the heap. Is anyone interested? Would like to hear about any similar efforts, what history there may be of trying to standardize these types of components. Links appreciated.
+
 The Producer produces a Product object that contains a sequential id (int) and and random floating point number (double) at intervals of between 0.5 and 1.5 seconds each. The Consumer consumes Products at random intervals between 1.0 and 3.0 seconds. It is just an example to demonstrate MP concepts.
 
 ## Build
