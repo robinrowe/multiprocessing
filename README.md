@@ -1,9 +1,11 @@
 # C++ Multiprocessing with Shared Memory
 By Robin.Rowe@cinepaint.org
 
-A producer/consumer architecture is the standard approach for building multiprocessing or multithreaded software. This example code demonstrates multiprocessing, shared memory, atomics, memory pools, fixed-size queues and semaphores. 
+Producer-consumer is a popular architecture for building multiprocessing or multithreaded software. This implementation demonstrates multiprocessing, shared memory, memory pools, fixed-size queues and semaphores. 
 
-The Producer produces a Product object that contains a sequential id (int) and and random floating point number (double) at intervals of between 0.5 and 1.5 seconds. each. The Consumer consumes Products at random intervals between 1.0 and 3.0 seconds.
+I've created C++ SharedMemory and Semaphore classes for multi-processing with support for Windows and UNIX. Features a fixed-size RingBuffer queue template I created that doesn't use the heap. Is anyone interested? Would like to hear about any similar efforts, what history there may be of trying to standardize these types of components. Links appreciated.
+
+The Producer produces a Product object that contains a sequential id (int) and and random floating point number (double) at intervals of between 0.5 and 1.5 seconds each. The Consumer consumes Products at random intervals between 1.0 and 3.0 seconds. It is just an example to demonstrate MP concepts.
 
 ## Build
 
@@ -27,7 +29,7 @@ FYI, how to enable core dumps in Linux bash, if you need.
 
 ## Running
 
-Simply run test_consumer. It will spawn test_producer automatically. For Windows, you must change the #define PRODUCER path in test_consumer.cpp to match where you build executable. The Linux build should just work, spawns ./test_producer.
+Simply run test_consumer. It will spawn test_producer automatically. For Windows, you must change the #define PRODUCER path in test_consumer.cpp to match where you build the test_producer executable. The Linux path should just work, spawns ./test_producer.
 
 ## System APIs Utilized
 
@@ -35,7 +37,7 @@ Simply run test_consumer. It will spawn test_producer automatically. For Windows
 - POSIX BSD 
 - Windows
 
-## Single Codebase Using Cmake
+## Single Codebase Design Using Cmake
 
 - Windows
 - Linux
@@ -44,11 +46,13 @@ Simply run test_consumer. It will spawn test_producer automatically. For Windows
 
 ## C++ Classes
 
-1. SharedMemory class encapsulates Windows, BSD and System V shared memory APIs
-1. MemoryPool class is base class of SharedMemory
-1. Semaphore class encapsulates Windows and System V APIs
-1. RingQueue template is an atomic fixed-size nothrow queue class inspired by std::queue
-1. Product class contains a serial id and a floating point number
+1. SharedMemory classes encapsulate Windows, BSD and System V shared memory APIs
+2. MemoryPool class is base class of SharedMemory
+3. Semaphore class encapsulates Windows, BSD and System V APIs
+4. RingQueue template is a fixed-size nothrow queue class inspired by std::queue
+5. Product class contains a serial id and a floating point number
+6. test/Producer class implements producer logic
+7. test/Consumer class implements consumer logic
 
 ## Design
 
@@ -60,12 +64,8 @@ And Boost offers boost::interprocess:
 
 https://www.boost.org/doc/libs/1_54_0/doc/html/interprocess/sharedmemorybetweenprocesses.html
 
-Because not standard, not using either of those. Created class SharedMemory instead.
+Because it's not standard, not using either of those. Created class SharedMemory instead. Using placement operator new() to put RingQueue in shared memory. RingQueue running in a single producer-consumer shared memory configuration is designed to be lockfree, but hasn't been tested for that. The purpose of the semaphore is to wake.
 
-C++ offers std::mutux. In order to play with System V (and Windows) APIs, I used those instead. However, because my RingQueue design uses std::atomic, the Semaphore seems unnecessary and has been disabled. In a more typical scenario there would be two semaphores, one to protect the queue from races, the other to wake the consumer process/thread.
-
-Using placement operator new() to put RingQueue in shared memory. 
-
-Using atomic to make RingQueue lockfree. However, it isn't designed to be safe for multiple concurrent consumers.
+C++ offers std::mutux for multi-threaded applications, but to work across processes encapsulated OS-specific semaphore API instead.
 
 [Requirements Document](docs/Requirements.md)
