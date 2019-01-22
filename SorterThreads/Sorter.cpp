@@ -2,6 +2,10 @@
 // Created by Robin Rowe 2019-01-22
 // License MIT open source
 
+
+// https://github.com/indy256/codelibrary/blob/master/cpp/sort/sort.cpp
+// The Unlicense
+
 void merge_sort(vector<int> &a, int low, int high)
 {	if(high - low < 2)
 	{	return;
