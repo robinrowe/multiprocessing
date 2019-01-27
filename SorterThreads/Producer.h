@@ -5,6 +5,7 @@
 #ifndef Producer_h
 #define Producer_h
 
+#include <iostream>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -27,7 +28,7 @@ class Producer
 public:
 	bool OpenSorter(const char* sorter);
 	int Run();	
-	void Print() const;
+	std::ostream& Print(std::ostream& os) const;
 	~Producer()
 	{}
 	Producer()
@@ -55,5 +56,10 @@ public:
 		return true;
 	}
 };
+
+inline
+std::ostream& operator<<(std::ostream& os,const Producer& producer)
+{	return producer.Print(os);
+}
 
 #endif

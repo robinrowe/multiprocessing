@@ -18,6 +18,6 @@ int Producer::Run()
 	return -1;
 }
 
-void Producer::Print() const
-{	printf("%s %s%s",input.c_str(),output.c_str(),sorters[sorter].c_str());
+std::ostream& Producer::Print(std::ostream& os) const
+{	return os << input << " " << output << sorters[sorter];
 }
