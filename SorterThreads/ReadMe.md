@@ -6,19 +6,28 @@ items following well known best practices of C++:
  2. The project must be uploaded to a public repository in github and
     the address of the repo be shared.
 
-make_project CodeTestSort
-make_main thread_sort
+Project: SorterThreads
+Program: ProducerConsumer
 
  3. The main process must be a command line executable 
  loads a file as input file(passed as an argument) 
- each line of the file will represent an item to process 
- a string composed by numeric characters or blank spaces, e.g: 15423123 931234 1) and an output file in which the results will be printed, a third argument to choose the sorting algorithm. 
- The amount of characters in each item will never exceed 100 chars. 
+ each line of the file will represent an item to process.
+
+ Usage: ProducerConsumer input_filename output_filename algorithm
+
+input_filename contains: a string composed by numeric characters or blank spaces, e.g: 15423123 931234 1.
+output_filename in which the results will be printed.
+algorithm is to choose the sorting algorithm.
+
+ The amount of characters in each item will never exceed 100 chars.
  The amount of lines in the input file will never exceed 10000 lines.
-     1. E.g.:  /.*/ProducerConsumer  /path/to/InputFile /path/to/OutputFile algorithmToSort*/
+
+     E.g.:  ./ProducerConsumer  /path/to/InputFile /path/to/OutputFile algorithmToSort
+
  4. For each item, a new WorkerThread must be created which will process
     the item 
-make_class Producer Consumer Sorter
+
+Classes: Producer Consumer Sorter
 
 A maximum of 4 worker threads. 
 Inside each thread: 

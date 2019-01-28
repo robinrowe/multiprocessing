@@ -1,13 +1,16 @@
-// producer_consumer.cpp 
+// ProducerConsumer.cpp 
 // Created by Robin Rowe 2019-01-22
 // License MIT MIT open source
 
-#include <stdio.h>
+#include <iostream>
 #include "Producer.h"
+#include "Sorter.h"
+using namespace std;
 
 void Usage()
-{	puts("Usage: producer_consumer input_file output_file sorter\n"
-		" sorter = bubble | merge | highlow");
+{	cout << "Usage: ProducerConsumer input_file output_file sorter" << endl;
+	Sorter sorter;
+	cout << "  " << sorter << endl;
 }
 
 enum 

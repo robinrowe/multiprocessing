@@ -9,53 +9,72 @@
 #include <map>
 #include <vector>
 #include <algorithm>
+#include <random>
+
+typedef char T;
 
 class Sorter
 {	Sorter(const Sorter&) = delete;
 	void operator=(const Sorter&) = delete;
-	static void merge_sort(std::vector<int> &a, int low, int high);
-	static void counting_sort(std::vector<int> &a);
-	typedef void func(std::vector<int> &a);
+    std::random_device rd;
+    std::mt19937 gen; 
+	static void merge_sort(T* from,T* to,int low,int high);
+	static void counting_sort(T* from,T* to);
+public:
+	typedef void func(T* from,T* to);
+private:
 	std::map<const char*,func*> sorts;
 public:
-	static void LowHighSort(std::vector<int>& v);
-	static void BubbleSort(std::vector<int>& v);
 	std::ostream& Print(std::ostream& os) const;
+	void Generate(std::vector<T>& v,int low,int high);
+	bool IsSorted(std::vector<T>& v);
+	bool Read(std::vector<T>& v,const char* filename);
+	bool Write(std::vector<T>& v,const char* filename);
+	static void LowHighSort(T* from,T* to);
+	static void BubbleSort(T* from,T* to);
+	static void MergeSort(T* from,T* to)
+	{	const int low = *std::min_element(from,to);
+		const int high = *std::max_element(from,to);
+		merge_sort(from,to,low,high);
+	};
+	static void CountingSort(T* from,T* to)
+	{	counting_sort(from,to);
+	}
+	static void HeapSort(T* from,T* to)
+	{	std::make_heap(from,to);
+		std::sort_heap(from,to);
+	}
+	static void StdSort(T* from,T* to)
+	{	std::sort(from,to);
+	}
 	~Sorter()
 	{}
 	Sorter()
+	:	gen(rd())
 	{	sorts["merge"] = MergeSort;
 		sorts["counting"] = CountingSort;
 		sorts["low-high"] = LowHighSort;
 		sorts["bubble"] = BubbleSort;
 		sorts["heap"] = HeapSort;
-		sorts["std"] = StdSort;
+		sorts["standard"] = StdSort;
 	}
 	bool operator!() const
 	{	return false;
 	}
-	bool Sort(std::vector<int>& v,const char* sortName)
+	bool Sort(std::vector<T>& v,const char* sortName)
+	{	func* f = GetSorter(sortName);
+		if(!f)
+		{	return false;
+		}
+		f(&v[0],&v[v.size()-1]);
+		return true;
+	}
+	func* GetSorter(const char* sortName)
 	{	for(auto& sort:sorts)
 		{	if(!strcmp(sort.first,sortName))
-			{	sort.second(v);
-				return true;
+			{	return sort.second;
 		}	}	
-		return false;
-	}
-	static void MergeSort(std::vector<int>& v)
-	{	const int low = *std::min_element(v.begin(),v.end());
-		const int high = *std::max_element(v.begin(),v.end());
-		merge_sort(v,low,high);
-	};
-	static void CountingSort(std::vector<int>& v)
-	{	counting_sort(v);
-	}
-	static void HeapSort(std::vector<int>& v)
-	{	std::make_heap(v.begin(),v.end());
-		std::sort_heap(v.begin(),v.end());
-	}
-	static void StdSort(std::vector<int>& v)
-	{	std::sort(v.begin(),v.end());
+		return 0;
 	}
 };
 

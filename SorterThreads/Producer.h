@@ -9,6 +9,8 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include "Sorter.h"
+#include "ThreadPool.h"
 
 class Producer
 {	Producer(const Producer&) = delete;
@@ -17,27 +19,22 @@ class Producer
 	std::ofstream os;
 	std::string input;
 	std::string output;
-	int sorter;
-	std::vector<std::string> sorters;
-	enum
-	{	none,
-		bubble,
-		merge,
-		highlow
-	};
+	std::string algorithm;
+	Sorter sorter;
+	Sorter::func* f;
+	ThreadPool threadPool;
+	static const unsigned threadCount = 4;
 public:
-	bool OpenSorter(const char* sorter);
-	int Run();	
+	bool Run();	
 	std::ostream& Print(std::ostream& os) const;
 	~Producer()
 	{}
 	Producer()
-	:	sorter(-1)
-	,	sorters(4)
-	{	sorters.assign(std::initializer_list<std::string>({ "","bubble","merge","highlow"}));
-	}
+	:	f(0)
+	,	threadPool(threadCount)
+	{}
 	bool operator!() const
-	{	return !sorter;
+	{	return !output.size();
 	}
 	bool OpenInput(const char* filename)
 	{	is.open(filename);
@@ -53,6 +50,14 @@ public:
 		{	return false;
 		}
 		output = filename;
+		return true;
+	}
+	bool OpenSorter(const char* algorithm)
+	{	f = sorter.GetSorter(algorithm);
+		if(!f)
+		{	return false;
+		}
+		this->algorithm = algorithm;
 		return true;
 	}
 };
