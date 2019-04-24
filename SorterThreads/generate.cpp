@@ -5,6 +5,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <vector>
+#include <fstream>
 #include "Sorter.h"
 using namespace std;
 
@@ -24,6 +25,7 @@ enum
 	
 int main(int argc,char* argv[])
 {	cout << "generate starting..." << endl;
+#if 0
 	if(argc < 5)
 	{	Usage();
 		return invalid_args;
@@ -32,6 +34,12 @@ int main(int argc,char* argv[])
 	const int low = atoi(argv[2]);
 	const int high = atoi(argv[2]);
 	const int count = atoi(argv[2]);
+#else
+	const char* filename = "random_generate.txt";
+	const int low = '0';
+	const int high = '9';
+	const int count = 101;
+#endif
 	if(!*filename)
 	{	cout << "Invalid filename" << endl;
 		Usage();
@@ -47,14 +55,38 @@ int main(int argc,char* argv[])
 		Usage();
 		return invalid_count;
 	}
-	std::vector<T> v(count);
-	Sorter sorter;
-	sorter.Generate(v,low,high);
-	if(!sorter.Write(v,filename))
-	{	cout << "Can't write file " << filename << endl;
-		Usage();
-		return cant_write_file;
+	std::ofstream os(filename);
+	if(os.bad())
+	{	cout << "Can't open file " << filename << endl;
+		return false;
 	}
+	std::vector<T> v(count);
+	T* line = &v[0];
+	Sorter sorter;
+	// output: 15423123 931234 1
+	const unsigned maxLength = 100; //Requirement is 100;
+	const unsigned lines = 100; //Requirement is <10000;
+	std::uniform_int_distribution<> dis(1,maxLength);	
+	for(unsigned i = 0;i<lines;++i)
+	{	unsigned length = 0;
+		for(;;)
+		{	const int width = dis(sorter.GetGen());
+			if(length + width + 1 > maxLength)
+			{	break;
+			}
+			if(length)
+			{	line[length] = ' ';
+				length++;
+			}
+			T* from = line+length;
+			T* to = line+length+width;
+			sorter.Generate(from,to,low,high);
+			length += width;
+		}
+		if(!sorter.Write(os,&v[0],&v[length],true))
+		{	cout << "Can't write file " << filename << endl;
+			return cant_write_file;
+	}	}
 	cout << "generate done!" << endl;
 	return ok;
 }

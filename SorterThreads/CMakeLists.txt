@@ -22,8 +22,6 @@ add_executable(generate generate.cpp)
 
 add_executable(test_Producer test/test_Producer.cpp)
 add_test(test_Producer test_Producer)
-add_executable(test_Consumer test/test_Consumer.cpp)
-add_test(test_Consumer test_Consumer)
 add_executable(test_Sorter test/test_Sorter.cpp)
 add_test(test_Sorter test_Sorter)
 add_executable(test_ThreadPool test/test_ThreadPool.cpp)

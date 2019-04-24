@@ -1,6 +1,4 @@
 sources.cmake
-Consumer.h
-Consumer.cpp
 Producer.h
 Producer.cpp
 Sorter.h

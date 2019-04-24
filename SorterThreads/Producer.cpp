@@ -10,16 +10,17 @@ bool Producer::Run()
 {	if(!*this)
 	{	return false;
 	}
-	SortItem item;
-	while(is.good())
-	{	is.getline(&item.line[0],item.line.size());
-		if(is.bad())
-		{	cout << "Error reading " << input << endl;
-			return false;
-		}
-//		do
-	//	{	
- // os.bad())
+	string s = sorter.Read(is);
+	if(is.bad())
+	{	cout << "Can't read file " << input << endl;
+		return false;
+	}
+	char* data = (char*) s.c_str();
+	size_t size = s.size();
+	while(size)
+	{	Task task(sorter,data,size);
+		threadPool.Run(task);
+		size -= task.Size();
 	}
 	return true;
 }

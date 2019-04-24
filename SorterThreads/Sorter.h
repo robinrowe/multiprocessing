@@ -20,16 +20,15 @@ class Sorter
     std::mt19937 gen; 
 	static void merge_sort(T* from,T* to,int low,int high);
 	static void counting_sort(T* from,T* to);
-public:
 	typedef void func(T* from,T* to);
-private:
+	func* f;
 	std::map<const char*,func*> sorts;
 public:
 	std::ostream& Print(std::ostream& os) const;
-	void Generate(std::vector<T>& v,int low,int high);
-	bool IsSorted(std::vector<T>& v);
-	bool Read(std::vector<T>& v,const char* filename);
-	bool Write(std::vector<T>& v,const char* filename);
+	void Generate(T* from,T* to,int low,int high);
+	bool IsSorted(T* from,T* to);
+	std::string Read(std::istream& is);
+	bool Write(std::ostream& os,const T* from,const T* to,bool newline);
 	static void LowHighSort(T* from,T* to);
 	static void BubbleSort(T* from,T* to);
 	static void MergeSort(T* from,T* to)
@@ -61,20 +60,23 @@ public:
 	bool operator!() const
 	{	return false;
 	}
-	bool Sort(std::vector<T>& v,const char* sortName)
-	{	func* f = GetSorter(sortName);
-		if(!f)
+	bool Sort(T* from,T* to)
+	{	if(!f)
 		{	return false;
 		}
-		f(&v[0],&v[v.size()-1]);
+		f(from,to);
 		return true;
 	}
-	func* GetSorter(const char* sortName)
+	bool SetSorter(const char* sortName)
 	{	for(auto& sort:sorts)
 		{	if(!strcmp(sort.first,sortName))
-			{	return sort.second;
+			{	f = sort.second;
+				return true;
 		}	}	
-		return 0;
+		return false;
+	}
+    std::mt19937& GetGen()
+	{	return gen; 
 	}
 };
 

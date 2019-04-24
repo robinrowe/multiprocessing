@@ -5,6 +5,7 @@
 #include <vector>
 #include <algorithm>
 #include <fstream>
+#include <sstream>
 #include "Sorter.h"
 using namespace std;
 
@@ -23,56 +24,44 @@ std::ostream& Sorter::Print(std::ostream& os) const
 	return os;
 } 
 
-void Sorter::Generate(std::vector<T>& v,int low,int high)
+void Sorter::Generate(T* from,T* to,int low,int high)
 {	std::uniform_int_distribution<> dis(low,high);
-	for(auto& i : v)
-    {   i = dis(gen);
+	while(from <= to)
+    {   *from = dis(gen);
+		from++;
 }	}
 
-bool Sorter::IsSorted(std::vector<T>& v)
-{	if(v.size() < 2)
+bool Sorter::IsSorted(T* from,T* to)
+{	const size_t size = to-from+1;
+	if(size < 2)
 	{	return true;
 	}
-	int vMin = v[0];
-	for(auto const& i : v)
-    {	if(i > vMin)
+	int vMin = from[0];
+	from++;
+	while(from < to)
+	{	if(*from > vMin)
 		{	return false;
 		}
-		vMin = i;
+		vMin = *from;
+		from++;
 	}
 	return true;
 }
 
-bool Sorter::Read(std::vector<T>& v,const char* filename)
-{	ifstream is(filename);
-	if(is.bad())
-	{	cout << "Can't open file " << filename << endl;
-		return false;
-	}
-	while(is.good())
-	{	int i = 0;
-		is >> i;
-		v.push_back(i);
-	}
-	if(is.bad())
-	{	cout << "Can't write file " << filename << endl;
-		return false;
-	}
-	return true;
+string Sorter::Read(std::istream& is)
+{	ostringstream dst;
+	dst << is.rdbuf() << ends;
+	return std::move(dst.str()); 
 }
 
-bool Sorter::Write(std::vector<T>& v,const char* filename)
-{	ofstream os(filename);
-	if(os.bad())
-	{	cout << "Can't open file " << filename << endl;
-		return false;
-	}
-	for(auto const& i : v)
-	{	os << i << " ";
+bool Sorter::Write(std::ostream& os,const T* from,const T* to,bool newline)
+{	const size_t length = to-from+1;
+	os.write(from,length);
+	if(newline)
+	{	os << endl;
 	}
 	if(os.bad())
-	{	cout << "Can't write file " << filename << endl;
-		return false;
+	{	return false;
 	}
 	return true;
 }
@@ -118,15 +107,16 @@ void Sorter::counting_sort(T* from,T* to)
 	const unsigned range = max-min+1;
 	const unsigned size = unsigned(to-from);
 	const int offset = -min;
-	vector<unsigned> count(range+1);
+	vector<unsigned> count;
+	count.assign(range+1,0);
 	for(unsigned i = 0;i<size;++i)
 	{	++count[offset+from[i]];
 	}
 	unsigned j = 0;
 	for(unsigned i = 0;i<size;++i)
 	{	while(count[i])
-		{	from[j] = i-offset;
-			++i;
+		{	from[j++] = int(i)-offset;
+			--count[i];
 	}	}
 }
 
@@ -139,8 +129,8 @@ void Sorter::merge_sort(T* from,T* to, int low, int high)
 	{	return;
 	}
 	int mid = (low + high) >> 1;
-	merge_sort(from,to, low, mid);
-	merge_sort(from,to, mid, high);
+	merge_sort(from,to,low,mid);
+	merge_sort(from,to,mid,high);
 	vector<T> b;
 	copy(from + low, from + mid, back_inserter(b));
 	for(int i = low, j = mid, k = 0; k < b.size(); i++)

@@ -27,7 +27,7 @@ algorithm is to choose the sorting algorithm.
  4. For each item, a new WorkerThread must be created which will process
     the item 
 
-Classes: Producer Consumer Sorter
+Classes: Producer Task Sorter
 
 A maximum of 4 worker threads. 
 Inside each thread: 

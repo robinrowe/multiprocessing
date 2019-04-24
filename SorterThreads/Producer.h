@@ -21,7 +21,6 @@ class Producer
 	std::string output;
 	std::string algorithm;
 	Sorter sorter;
-	Sorter::func* f;
 	ThreadPool threadPool;
 	static const unsigned threadCount = 4;
 public:
